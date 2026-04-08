@@ -1,0 +1,449 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: CPS Deal Navigator API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: deals
+    description: Deal management
+  - name: inventory
+    description: Inventory and CMDB management
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /deals:
+    get:
+      operationId: listDeals
+      tags: [deals]
+      summary: List all deals
+      responses:
+        "200":
+          description: List of deals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deal"
+    post:
+      operationId: createDeal
+      tags: [deals]
+      summary: Create a new deal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDealBody"
+      responses:
+        "201":
+          description: Deal created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+
+  /deals/{id}:
+    get:
+      operationId: getDeal
+      tags: [deals]
+      summary: Get deal by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deal found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+        "404":
+          description: Deal not found
+    put:
+      operationId: updateDeal
+      tags: [deals]
+      summary: Update deal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDealBody"
+      responses:
+        "200":
+          description: Deal updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+    delete:
+      operationId: deleteDeal
+      tags: [deals]
+      summary: Delete deal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deal deleted
+
+  /deals/{id}/inventory:
+    get:
+      operationId: getDealInventory
+      tags: [inventory]
+      summary: Get inventory items for a deal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+    post:
+      operationId: addInventoryItem
+      tags: [inventory]
+      summary: Add inventory item to deal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInventoryItemBody"
+      responses:
+        "201":
+          description: Item added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+
+  /deals/{id}/estimate:
+    get:
+      operationId: getDealEstimate
+      tags: [deals]
+      summary: Get cost and effort estimate for a deal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deal estimate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DealEstimate"
+
+  /deals/summary:
+    get:
+      operationId: getDealsSummary
+      tags: [deals]
+      summary: Get summary stats for all deals
+      responses:
+        "200":
+          description: Summary stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DealsSummary"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Deal:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        clientName:
+          type: string
+        industryVertical:
+          type: string
+        currentInfrastructure:
+          type: string
+        numberOfApplications:
+          type: integer
+        workloadTypes:
+          type: array
+          items:
+            type: string
+        primaryBusinessGoal:
+          type: string
+        customScope:
+          type: string
+        status:
+          type: string
+          enum: [draft, in_progress, completed, won, lost]
+        complexity:
+          type: string
+          enum: [low, medium, high]
+        suggestedStrategy:
+          type: string
+        totalVMs:
+          type: integer
+        totalPhysicalServers:
+          type: integer
+        manualVMCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - clientName
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateDealBody:
+      type: object
+      properties:
+        name:
+          type: string
+        clientName:
+          type: string
+        industryVertical:
+          type: string
+        currentInfrastructure:
+          type: string
+        numberOfApplications:
+          type: integer
+        workloadTypes:
+          type: array
+          items:
+            type: string
+        primaryBusinessGoal:
+          type: string
+        customScope:
+          type: string
+        totalVMs:
+          type: integer
+        totalPhysicalServers:
+          type: integer
+        manualVMCount:
+          type: integer
+      required:
+        - name
+        - clientName
+
+    UpdateDealBody:
+      type: object
+      properties:
+        name:
+          type: string
+        clientName:
+          type: string
+        industryVertical:
+          type: string
+        currentInfrastructure:
+          type: string
+        numberOfApplications:
+          type: integer
+        workloadTypes:
+          type: array
+          items:
+            type: string
+        primaryBusinessGoal:
+          type: string
+        customScope:
+          type: string
+        status:
+          type: string
+          enum: [draft, in_progress, completed, won, lost]
+        totalVMs:
+          type: integer
+        totalPhysicalServers:
+          type: integer
+        manualVMCount:
+          type: integer
+
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        dealId:
+          type: integer
+        source:
+          type: string
+          enum: [cmdb, excel, manual]
+        serverName:
+          type: string
+        serverType:
+          type: string
+          enum: [vm, physical, container, unknown]
+        os:
+          type: string
+        cpuCores:
+          type: integer
+        ramGB:
+          type: number
+        diskGB:
+          type: number
+        environment:
+          type: string
+        application:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - dealId
+        - source
+        - serverType
+        - createdAt
+
+    CreateInventoryItemBody:
+      type: object
+      properties:
+        source:
+          type: string
+          enum: [cmdb, excel, manual]
+        serverName:
+          type: string
+        serverType:
+          type: string
+          enum: [vm, physical, container, unknown]
+        os:
+          type: string
+        cpuCores:
+          type: integer
+        ramGB:
+          type: number
+        diskGB:
+          type: number
+        environment:
+          type: string
+        application:
+          type: string
+        notes:
+          type: string
+      required:
+        - source
+        - serverType
+
+    DealEstimate:
+      type: object
+      properties:
+        dealId:
+          type: integer
+        totalVMs:
+          type: integer
+        totalPhysicalServers:
+          type: integer
+        totalWorkloads:
+          type: integer
+        estimatedMigrationWeeks:
+          type: integer
+        estimatedEffortDays:
+          type: integer
+        complexityScore:
+          type: string
+          enum: [low, medium, high]
+        suggestedStrategy:
+          type: string
+        riskFlags:
+          type: array
+          items:
+            type: string
+        costIndicatorMin:
+          type: number
+        costIndicatorMax:
+          type: number
+      required:
+        - dealId
+        - totalVMs
+        - totalPhysicalServers
+        - totalWorkloads
+        - complexityScore
+        - suggestedStrategy
+        - riskFlags
+
+    DealsSummary:
+      type: object
+      properties:
+        totalDeals:
+          type: integer
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        totalVMs:
+          type: integer
+        totalApplications:
+          type: integer
+        avgComplexity:
+          type: string
+        recentDeals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Deal"
+      required:
+        - totalDeals
+        - byStatus
+        - totalVMs
+        - totalApplications
+        - recentDeals
