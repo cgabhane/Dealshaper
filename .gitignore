@@ -1,0 +1,27 @@
+# Dependencies
+  node_modules/
+  .pnpm/
+
+  # Build outputs
+  dist/
+  build/
+  *.tsbuildinfo
+  *.map
+
+  # Environment
+  .env
+  .env.local
+  *.env
+
+  # Cache
+  .cache/
+
+  # Replit-specific
+  .replit
+  replit.nix
+  .local/
+
+  # Misc
+  pnpm-lock.yaml
+  attached_assets/
+  
