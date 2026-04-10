@@ -13,8 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search } from "lucide-react";
+import { FilePlus2, Search } from "lucide-react";
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DealList() {
   const { data: deals, isLoading, error } = useListDeals({
@@ -24,11 +25,33 @@ export default function DealList() {
   const [search, setSearch] = useState("");
 
   if (isLoading) {
-    return <div className="p-8 flex justify-center text-muted-foreground">Loading deals...</div>;
+    return (
+      <div className="p-8 space-y-6 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-28" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-9 w-28" />
+        </div>
+        <Skeleton className="h-9 w-64" />
+        <div className="border rounded-md bg-card overflow-hidden">
+          <div className="p-4 space-y-3">
+            {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error || !deals) {
-    return <div className="p-8 text-destructive">Failed to load deals.</div>;
+    return (
+      <div className="p-8 max-w-7xl mx-auto">
+        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          Failed to load deals. Ensure the API server is running.
+        </div>
+      </div>
+    );
   }
 
   const filteredDeals = deals.filter(deal => 
@@ -44,8 +67,8 @@ export default function DealList() {
           <p className="text-sm text-muted-foreground mt-1">Manage and track all CPS shaping deals.</p>
         </div>
         <Link href="/deals/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
+          <Button size="sm">
+            <FilePlus2 className="w-4 h-4 mr-2" />
             New Deal
           </Button>
         </Link>

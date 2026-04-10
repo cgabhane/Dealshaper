@@ -8,6 +8,7 @@ import Dashboard from "@/pages/dashboard";
 import DealList from "@/pages/deals/index";
 import NewDeal from "@/pages/deals/new";
 import DealDetail from "@/pages/deals/detail";
+import AIBrain from "@/pages/ai-brain";
 import { MainLayout } from "@/components/layout/main-layout";
 
 const queryClient = new QueryClient({
@@ -15,6 +16,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      staleTime: 30_000,
     },
   },
 });
@@ -27,6 +29,7 @@ function Router() {
         <Route path="/deals" component={DealList} />
         <Route path="/deals/new" component={NewDeal} />
         <Route path="/deals/:id" component={DealDetail} />
+        <Route path="/ai-brain" component={AIBrain} />
         <Route component={NotFound} />
       </Switch>
     </MainLayout>
